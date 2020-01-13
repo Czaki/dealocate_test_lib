@@ -1,0 +1,15 @@
+language:
+  - objective-c
+
+
+jobs:
+  include: 
+    - stage: base_libs 
+      osx_image: xcode6.4 
+      script: NUM=6 bash base_compile_libs.sh
+
+    - osx_image: xcode6.4 
+      script: NUM=9 bash base_compile_libs.sh
+    
+    - osx_image: xcode10
+      script: NUM=13 bash base_compile_libs.sh
