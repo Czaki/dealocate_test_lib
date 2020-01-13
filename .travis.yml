@@ -1,15 +1,25 @@
 language:
-  - objective-c
+- objective-c
 
+env:
+- CXX=clang
 
 jobs:
-  include: 
-    - stage: base_libs 
-      osx_image: xcode6.4 
-      script: NUM=6 bash base_compile_libs.sh
+  include:
+  - stage: create_dir
+    script: ssh -o StrictHostKeyChecking=no -i ./deploy_key $SERVER "mkdir delocate/$TRAVIS_BUILD_NUMBER"
+  - stage: base_libs
+    osx_image: xcode6.4
+    script: |
+      NUM=6 bash base_compile_libs.sh
+      NUM=9 bash base_compile_libs.sh
+      scp -o StrictHostKeyChecking=no -i ./deploy_key *.dylib $SCPSERVER:delocate/$TRAVIS_BUILD_NUMBER
+  - osx_image: xcode10
+    script: |
+      NUM=13 bash base_compile_libs.sh
+      scp -o StrictHostKeyChecking=no -i ./deploy_key *.dylib $SCPSERVER:delocate/$TRAVIS_BUILD_NUMBER
 
-    - osx_image: xcode6.4 
-      script: NUM=9 bash base_compile_libs.sh
-    
-    - osx_image: xcode10
-      script: NUM=13 bash base_compile_libs.sh
+before_install:
+- openssl aes-256-cbc -K $encrypted_2b8481711277_key -iv $encrypted_2b8481711277_iv
+  -in deploy_key.enc -out ./deploy_key -d
+- chmod 600 ./deploy_key
